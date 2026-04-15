@@ -1,0 +1,76 @@
+# =========================
+# Unity Generated Folders
+# =========================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+Recordings/
+
+# =========================
+# VS / Rider / IDE
+# =========================
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# =========================
+# Unity Cache / Metadata
+# =========================
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Crash Reports
+# =========================
+sysinfo.txt
+
+# =========================
+# IL2CPP / Build Artifacts
+# =========================
+*.apk
+*.aab
+*.unitypackage
+
+# =========================
+# Addressables / Cache
+# =========================
+ServerData/
+StreamingAssets/aa.meta
+StreamingAssets/aa/*
+
+# =========================
+# Ignore profiler captures
+# =========================
+ProfilerCaptures/
+
+# =========================
+# KEEP THESE (IMPORTANT)
+# =========================
+!Assets/
+!Packages/
+!ProjectSettings/
+
+# Plugins MUST be included
+!Assets/Plugins/
