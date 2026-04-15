@@ -1,0 +1,15 @@
+{
+    "lesson_id": "pokemon_01",
+    "targets": [
+      {
+        "id": 0,
+        "model": "models/Gengar.glb",
+        "image": "images/Gengar.jpg"
+      },
+      {
+        "id": 1,
+        "model": "models/Greninja.glb",
+        "image": "images/Greninja.jpeg"
+      }
+    ]
+  }
