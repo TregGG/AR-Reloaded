@@ -11,12 +11,15 @@ UserSettings/
 MemoryCaptures/
 Recordings/
 
+
 # =========================
 # VS / Rider / IDE
 # =========================
 .vs/
 .vscode/
 .idea/
+.utmp/
+*.slnx
 *.csproj
 *.unityproj
 *.sln
