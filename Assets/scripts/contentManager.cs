@@ -331,14 +331,25 @@ public class ContentManager : MonoBehaviour
         Renderer[] renderers = container.GetComponentsInChildren<Renderer>();
         if (renderers.Length == 0) return;
 
-        // 1. Calculate initial bounds to find the scale
+        // 1. Calculate initial bounds
         Bounds bounds = renderers[0].bounds;
-        foreach (Renderer r in renderers)
+        foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
+
+        // 🔥 2. ALIGNMENT FIX: Ensure the longest horizontal side is ALWAYS on the X-axis
+        if (bounds.size.z > bounds.size.x)
         {
-            bounds.Encapsulate(r.bounds);
+            // Bake a 90-degree rotation into the raw meshes
+            foreach (Transform child in container.transform)
+            {
+                child.RotateAround(bounds.center, Vector3.up, 90f);
+            }
+            
+            // Recalculate bounds because the geometry just rotated
+            bounds = renderers[0].bounds;
+            foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
         }
 
-        // 2. Apply scale to the parent container
+        // 3. Apply scale based on the absolute longest dimension
         float maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
         if (maxDimension > 0.0001f)
         {
@@ -346,23 +357,13 @@ public class ContentManager : MonoBehaviour
             container.transform.localScale = Vector3.one * scaleFactor;
         }
 
-        // 3. Recalculate bounds AFTER scaling
-        // (Because the container shrank, the world-space bounds have changed)
+        // 4. Recalculate one last time to find the exact bottom-center
         bounds = renderers[0].bounds;
-        foreach (Renderer r in renderers)
-        {
-            bounds.Encapsulate(r.bounds);
-        }
+        foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
 
-        // 4. Calculate the offset
-        // We find the exact bottom-center of the newly scaled 3D model
         Vector3 bottomCenter = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
-        
-        // We calculate how far off that point is from our container's true origin
         Vector3 offset = container.transform.position - bottomCenter;
 
-        // 5. Shift the meshes inside the container
-        // This physically moves the 3D model so its bottom-center rests perfectly on (0,0,0)
         foreach (Transform child in container.transform)
         {
             child.position += offset;
