@@ -300,7 +300,6 @@ public class ContentManager : MonoBehaviour
     async void LoadGLBModel(string path, string imageName)
     {
         var gltf = new GLTFast.GltfImport();
-
         bool success = await gltf.Load("file://" + path);
 
         if (!success)
@@ -310,20 +309,41 @@ public class ContentManager : MonoBehaviour
         }
 
         GameObject parent = new GameObject(imageName);
-
         await gltf.InstantiateMainSceneAsync(parent.transform);
 
-        // 🔥 APPLY SCALE HERE (GLOBAL FIX)
-        if (parent.transform.childCount > 0)
-        {
-            Transform modelRoot = parent.transform.GetChild(0);
-            modelRoot.localScale = Vector3.one * 0.01f;
-        }
+        // 🔥 APPLY THE AUTO-SCALER (Sets the model to exactly 15cm wide/tall)
+        NormalizeModelSize(parent, 0.15f); 
 
         parent.SetActive(false);
-
         modelMap[imageName] = parent;
 
         Debug.Log($"[GLB] Loaded model for {imageName}");
     }
+    private void NormalizeModelSize(GameObject model, float targetSizeInMeters)
+    {
+        // 1. Find all the meshes in the loaded model
+        Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return;
+
+        // 2. Calculate the bounding box that encapsulates the entire model
+        Bounds bounds = renderers[0].bounds;
+        foreach (Renderer r in renderers)
+        {
+            bounds.Encapsulate(r.bounds);
+        }
+
+        // 3. Find the longest side (width, height, or depth)
+        float maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+
+        // 4. Calculate the scale factor needed to shrink/grow it to the target size
+        if (maxDimension > 0.0001f) // Prevent divide by zero
+        {
+            float scaleFactor = targetSizeInMeters / maxDimension;
+            
+            // 5. Apply the perfect scale
+            model.transform.localScale = Vector3.one * scaleFactor;
+        }
+    }
+
+
 }

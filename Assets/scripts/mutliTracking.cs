@@ -80,7 +80,7 @@ public class MultiTracking : MonoBehaviour
 
             obj.transform.localPosition = new Vector3(0,0,0);
             obj.transform.localRotation = Quaternion.identity;
-            obj.transform.localScale = Vector3.one * 0.07f; // Ensure scale is applied correctly
+            // obj.transform.localScale = Vector3.one; // Ensure scale is applied correctly
         }
         Debug.Log($"[MultiTracking] Model position before update: {obj.transform.position}, rotation: {obj.transform.rotation}");
 
