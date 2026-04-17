@@ -312,36 +312,53 @@ public class ContentManager : MonoBehaviour
         await gltf.InstantiateMainSceneAsync(parent.transform);
 
         // 🔥 APPLY THE AUTO-SCALER (Sets the model to exactly 15cm wide/tall)
-        NormalizeModelSize(parent, 0.15f); 
+        NormalizeSizeAndCenter(parent, 0.15f); 
 
         parent.SetActive(false);
         modelMap[imageName] = parent;
 
         Debug.Log($"[GLB] Loaded model for {imageName}");
     }
-    private void NormalizeModelSize(GameObject model, float targetSizeInMeters)
+    private void NormalizeSizeAndCenter(GameObject container, float targetSizeInMeters)
     {
-        // 1. Find all the meshes in the loaded model
-        Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = container.GetComponentsInChildren<Renderer>();
         if (renderers.Length == 0) return;
 
-        // 2. Calculate the bounding box that encapsulates the entire model
+        // 1. Calculate initial bounds to find the scale
         Bounds bounds = renderers[0].bounds;
         foreach (Renderer r in renderers)
         {
             bounds.Encapsulate(r.bounds);
         }
 
-        // 3. Find the longest side (width, height, or depth)
+        // 2. Apply scale to the parent container
         float maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
-
-        // 4. Calculate the scale factor needed to shrink/grow it to the target size
-        if (maxDimension > 0.0001f) // Prevent divide by zero
+        if (maxDimension > 0.0001f)
         {
             float scaleFactor = targetSizeInMeters / maxDimension;
-            
-            // 5. Apply the perfect scale
-            model.transform.localScale = Vector3.one * scaleFactor;
+            container.transform.localScale = Vector3.one * scaleFactor;
+        }
+
+        // 3. Recalculate bounds AFTER scaling
+        // (Because the container shrank, the world-space bounds have changed)
+        bounds = renderers[0].bounds;
+        foreach (Renderer r in renderers)
+        {
+            bounds.Encapsulate(r.bounds);
+        }
+
+        // 4. Calculate the offset
+        // We find the exact bottom-center of the newly scaled 3D model
+        Vector3 bottomCenter = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+        
+        // We calculate how far off that point is from our container's true origin
+        Vector3 offset = container.transform.position - bottomCenter;
+
+        // 5. Shift the meshes inside the container
+        // This physically moves the 3D model so its bottom-center rests perfectly on (0,0,0)
+        foreach (Transform child in container.transform)
+        {
+            child.position += offset;
         }
     }
 
