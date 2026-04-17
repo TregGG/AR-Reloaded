@@ -16,6 +16,7 @@ public class ContentManager : MonoBehaviour
     // Cache for scene transition
     private PackageData cachedPackage;
     private string cachedFolder;
+    [SerializeField] GameObject loadingScreen;
 
     void Awake()
     {
@@ -46,7 +47,7 @@ public class ContentManager : MonoBehaviour
 
         // 1. Download
         string zipPath = null;
-
+        loadingScreen.SetActive(true);
         var downloader = GetComponent<ZipDownloader>();
         if (downloader == null)
         {
