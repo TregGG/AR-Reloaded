@@ -52,14 +52,12 @@ public class MultiTracking : MonoBehaviour
 
     private void UpdateImage(ARTrackedImage trackedImage)
     {
-        Debug.Log($"[MultiTracking] Updating image: {trackedImage.referenceImage.name}, TrackingState: {trackedImage.trackingState}");
         if (trackedImage == null) return;
 
         string name = trackedImage.referenceImage.name.ToLower();
 
         if (!m_ArPrefabs.ContainsKey(name))
         {
-            Debug.LogWarning("No model found for: " + name);
             return;
         }
 
@@ -71,18 +69,26 @@ public class MultiTracking : MonoBehaviour
             obj.SetActive(false);
             return;
         }
-        Debug.Log($"[MultiTracking] Activating model for: {name}");
+
         obj.SetActive(true);
 
+        // 1. Position and Rotation
+        // 1. Position and Rotation
         if (obj.transform.parent != trackedImage.transform)
         {
-            obj.transform.SetParent(trackedImage.transform);
-
-            obj.transform.localPosition = new Vector3(0,0,0);
+            obj.transform.SetParent(trackedImage.transform, false);
+            obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
-            // obj.transform.localScale = Vector3.one; // Ensure scale is applied correctly
         }
-        Debug.Log($"[MultiTracking] Model position before update: {obj.transform.position}, rotation: {obj.transform.rotation}");
 
+        // 🔥 2. DYNAMIC SCALING (Now applied safely to the wrapper!)
+        float paperWidth = trackedImage.size.x;
+        
+        // Safety check: Only scale if ARCore has figured out the real-world size
+        if (paperWidth > 0.01f) 
+        {
+            // You can multiply this by 1.2f if you want the model to pop out larger than the card
+            obj.transform.localScale = Vector3.one * paperWidth; 
+        } 
     }
 }

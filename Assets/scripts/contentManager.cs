@@ -308,14 +308,21 @@ public class ContentManager : MonoBehaviour
             return;
         }
 
-        GameObject parent = new GameObject(imageName);
-        await gltf.InstantiateMainSceneAsync(parent.transform);
+        // 1. Create a container just for the raw meshes
+        GameObject meshContainer = new GameObject(imageName + "_mesh");
+        await gltf.InstantiateMainSceneAsync(meshContainer.transform);
 
-        // 🔥 APPLY THE AUTO-SCALER (Sets the model to exactly 15cm wide/tall)
-        NormalizeSizeAndCenter(parent, 0.15f); 
+        // 2. Normalize the meshes to exactly 1 meter and center them
+        NormalizeSizeAndCenter(meshContainer, 1f);
 
-        parent.SetActive(false);
-        modelMap[imageName] = parent;
+        // 🔥 3. Create the clean Wrapper Box for the tracker to scale
+        GameObject trackingWrapper = new GameObject(imageName);
+        meshContainer.transform.SetParent(trackingWrapper.transform, false);
+
+        trackingWrapper.SetActive(false);
+
+        // Hand the wrapper to the tracker, not the raw mesh
+        modelMap[imageName] = trackingWrapper;
 
         Debug.Log($"[GLB] Loaded model for {imageName}");
     }
